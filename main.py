@@ -1,69 +1,64 @@
-# Importar
-from flask import Flask, render_template,request, redirect
-# Conectando a la biblioteca de bases de datos
+# Importación
+from flask import Flask, render_template, request, redirect, session
+# Conexión de la biblioteca de bases de datos
 from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
-# Conectando SQLite
+# Establecer la clave secreta para la sesión.
+app.secret_key = 'my_top_secret_123'
+# Estableciendo conexión SQLite
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///diary.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# Creando una base de datos
+# Creando la DB
 db = SQLAlchemy(app)
-# Creación de una tabla
+# Creando la tabla
 
 class Card(db.Model):
-    # Creación de columnas
+    # Estableciendo los campos de enrada
     # id
     id = db.Column(db.Integer, primary_key=True)
-    # Título
+    # título
     title = db.Column(db.String(100), nullable=False)
     # Descripción
     subtitle = db.Column(db.String(300), nullable=False)
     # Texto
     text = db.Column(db.Text, nullable=False)
+    # El correo electrónico del propietario de la tarjeta.
+    user_email = db.Column(db.String(100), nullable=False)
 
-    # Salida del objeto y del id
+    # Objeto de salida y su ID
     def __repr__(self):
         return f'<Card {self.id}>'
     
 
-#Asignación #2. Crear la tabla Usuario
+# Tarea #1. Crear la tabla de usuarios
 
 
-
-
-
-
-
-
-
-# Ejecutar la página de contenidos
+# Lanzamiento de la página de contenido
 @app.route('/', methods=['GET','POST'])
 def login():
-        error = ''
-        if request.method == 'POST':
-            form_login = request.form['email']
-            form_password = request.form['password']
+    error = ''
+    if request.method == 'POST':
+        form_login = request.form['email']
+        form_password = request.form['password']
             
-            #Asignación #4. Aplicar la autorización
-            
+        # Tarea #4. Implementar la verificación de usuario
 
-
-            
-        else:
-            return render_template('login.html')
+     
+    else:
+        return render_template('login.html')
 
 
 
 @app.route('/reg', methods=['GET','POST'])
 def reg():
     if request.method == 'POST':
-        login= request.form['email']
+        email = request.form['email']
         password = request.form['password']
         
-        #Asignación #3. Hacer que los datos del usuario se registren en la base de datos.
-        
+        # Tarea #3. Implementar grabación de usuarios
+
 
         
         return redirect('/')
@@ -72,26 +67,26 @@ def reg():
         return render_template('registration.html')
 
 
-# Ejecutar la página de contenidos
+# Iniciar página de contenido
 @app.route('/index')
 def index():
-    # Visualización de las entradas de la base de datos
+    # Tarea # 4. Asegúrese de que el usuario solo vea sus propias tarjetas
     cards = Card.query.order_by(Card.id).all()
     return render_template('index.html', cards=cards)
 
-# Ejecutar la página con la entrada
+# Lanzando la página de la tarjeta
 @app.route('/card/<int:id>')
 def card(id):
     card = Card.query.get(id)
 
     return render_template('card.html', card=card)
 
-# Ejecutar la página de creación de entradas
+# Iniciando la página de creación de tarjetas
 @app.route('/create')
 def create():
     return render_template('create_card.html')
 
-# El formulario de inscripción
+# la forma de la tarjeta
 @app.route('/form_create', methods=['GET','POST'])
 def form_create():
     if request.method == 'POST':
@@ -99,7 +94,7 @@ def form_create():
         subtitle =  request.form['subtitle']
         text =  request.form['text']
 
-        # Creación de un objeto que se enviará a la base de datos
+        # Tarea # 4. Hacer que la creación de la tarjeta se realice en nombre del usuario
         card = Card(title=title, subtitle=subtitle, text=text)
 
         db.session.add(card)
@@ -107,10 +102,6 @@ def form_create():
         return redirect('/index')
     else:
         return render_template('create_card.html')
-
-
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
